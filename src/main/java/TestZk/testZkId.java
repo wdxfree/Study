@@ -43,6 +43,7 @@ public class testZkId {
 
         }
     };
+
     public void destory(){
         if(curatorFramework!=null){
             try {
@@ -55,6 +56,7 @@ public class testZkId {
     }
 
     private ReentrantLock INSTANCE_INIT_LOCK =new ReentrantLock(true);//true 为公平锁，优先执行等待时间最长的锁
+
     public CuratorFramework getCuratorFramework(){//为什么在执行创建CuratorFramework 就要进行加锁，而不是在创建序列号的时候进行操作
         if(curatorFramework==null){
 
@@ -70,6 +72,7 @@ public class testZkId {
                     Listenable<ConnectionStateListener> connectionStateListenable = curatorFramework.getConnectionStateListenable();
                     connectionStateListenable.addListener(listener);
                     curatorFramework.start();
+
                 }
             }catch (Exception e){
                 logger.error(e.getMessage(),e);
@@ -82,10 +85,9 @@ public class testZkId {
         }
         return curatorFramework;
     }
-    //上述全都是创建连接的过程
 
-    public int getSeq(String key)
-    {
+    //上述全都是创建连接的过程
+    public int getSeq(String key) {
         DistributedAtomicInteger distributedAtomicInteger =concurrentMap.get(key);
         int value=0;
         if(distributedAtomicInteger==null){

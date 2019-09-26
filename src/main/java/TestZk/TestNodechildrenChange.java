@@ -91,14 +91,12 @@ public class TestNodechildrenChange {
                         default:
                             break;
                 }
-
             }catch (Exception e){
                 logger.error("",e);
                 curatorFramework.close();
             }
         }
     };
-
 
     public void setlistener(){
         curatorFramework.getCuratorListenable().addListener(curatorListener);
@@ -115,19 +113,12 @@ public class TestNodechildrenChange {
                 System.out.println(1);
                 if(treeCacheEvent.getData().getData()!=null){
                     System.out.println(new String(treeCacheEvent.getData().getData()));
-                    System.out.println(treeCacheEvent.getType());
+                    System.out.println(treeCacheEvent);
                     System.out.println(2);
                 }
             }
-
-
         });
         treeCache.start();
-
-
-
-
-
 
         /*
         *pathChildrenCache的使用 */
@@ -142,9 +133,6 @@ public class TestNodechildrenChange {
 //                System.out.println("测试");
 //            }
 //        });
-
-
-
         try {
             Thread.sleep(60000);
         } catch (InterruptedException e) {
