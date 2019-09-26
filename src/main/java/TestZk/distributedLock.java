@@ -22,6 +22,7 @@ public class distributedLock implements Lock, Watcher { //实现了lock和watche
     private String path;
     private String pre;
 
+
     @Override
     public String toString() {
         return "distributedLock{" +
@@ -60,7 +61,7 @@ public class distributedLock implements Lock, Watcher { //实现了lock和watche
             case NodeDeleted:
                 synchronized (pre){
                     System.out.println("唤醒线程"+Thread.currentThread().getName());
-                    pre.notify(); //唤醒线程
+                    pre.notifyAll(); //唤醒线程
                 }
                 break;
                 default:
@@ -115,21 +116,23 @@ public class distributedLock implements Lock, Watcher { //实现了lock和watche
 
     @Override
     public void lock() {
+
         if (tryLock()) {
 
             System.out.println(Thread.currentThread().getName() + " 获取锁成功");
             System.out.println("正在执行程序，请稍等");
             unlock();
             return;
+        }{
+            try {
+                waitForLock();
+            } catch (KeeperException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
-        try {
-            waitForLock();
-        } catch (KeeperException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
 
-        }
 
     }
 
@@ -140,16 +143,17 @@ public class distributedLock implements Lock, Watcher { //实现了lock和watche
             System.out.println(Thread.currentThread().getName() + "正在等待");
             synchronized (pre) {
                 Long curentTime = System.currentTimeMillis();
-                pre.wait(10000); //设置超时时间
+                pre.wait(100000); //设置超时时间
                 Long now = System.currentTimeMillis();
                 if (now - curentTime >= 10000) {
                     System.out.println(Thread.currentThread().getName() + "超过等待时间，退出竞争");
                     unlock();
 
                 }
-                System.out.println(Thread.currentThread().getName() + "获取锁成功");
-
             }
+        }
+        else {
+            lock();
         }
     }
 
@@ -158,6 +162,7 @@ public class distributedLock implements Lock, Watcher { //实现了lock和watche
     public void lockInterruptibly() throws InterruptedException {
 
     }
+
 
     @Override
     public boolean tryLock(){
@@ -174,14 +179,13 @@ public class distributedLock implements Lock, Watcher { //实现了lock和watche
 //            System.out.println(i);
             if(i==0){
 
-
                 return true;
             }
             else{
-//                System.out.println(list.);
                 pre=list.get(i-1);
                 System.out.println(Thread.currentThread().getName()+"监控"+"/zklock/"+pre);
                 zooKeeper.exists("/zklock/"+pre,true);
+
                 return false;
             }
         } catch (KeeperException e) {
@@ -206,8 +210,6 @@ public class distributedLock implements Lock, Watcher { //实现了lock和watche
             e.printStackTrace();
         } catch (KeeperException e) {
             e.printStackTrace();
-
-
         }
     }
 
@@ -215,7 +217,6 @@ public class distributedLock implements Lock, Watcher { //实现了lock和watche
     public Condition newCondition() {
         return null;
     }
-
 
     public static void main(String[] args) {
         CountDownLatch countDownLatch = new CountDownLatch(10);
@@ -233,7 +234,7 @@ public class distributedLock implements Lock, Watcher { //实现了lock和watche
                     e.printStackTrace();
                 }finally {
                     if (dispathLock!=null){
-                        dispathLock.unlock();
+//                        dispathLock.unlock();
                     }
                 }
             }).start();

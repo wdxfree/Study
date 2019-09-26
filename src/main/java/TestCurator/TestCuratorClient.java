@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 public class TestCuratorClient {
     private final Logger logger = LoggerFactory.getLogger(TestCuratorClient.class);
 
-
     RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
     CuratorFramework zkc ;
     public TestCuratorClient(){
