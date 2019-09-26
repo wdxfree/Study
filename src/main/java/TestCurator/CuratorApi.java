@@ -86,6 +86,7 @@ public class CuratorApi {
                 System.out.println("节点已经存在");
             }
 
+
             byte[] bytes = curatorFramework.getData().forPath("/study/studytest");
             System.out.println(new String(bytes));
 
